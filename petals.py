@@ -178,12 +178,10 @@ rooms = {
         'Prompt': "You flick the switch on. You've stepped into a room of quite the calibre. On your right, there is a king-size bed, centred flush to the wall, draped in white sheets. In the middle of the room, a square "  + colour.YELLOW + "patch of dirt" + colour.END + " no bigger than the top of a bedside desk. \nIts edges are boarded off by thick wooden planks. At the front of the room, a giant" + colour.YELLOW + " mirror" + colour.END + " meets the ceiling and both adjacent walls. A 2006 World Cup replica" + colour.CYAN + " football" + colour.END + " lies in the corner of the room.\
         \nThis is it. This is everything you've been working for. If you still have your shovel on you, you can dig down into the dirt and make a tunnel. Every day, the dirt will go back to normal, and you will be paid handsomely by the hour. \nYou can even leave the game once you say, " + colour.YELLOW + "I accept" + colour.END + ". \nDo you accept these conditions?",
         'Back': 'Third Room', 
-        'Item': 'football'
+        'Item': 'football',
+        'DigMessage': "You heave the shovel at the patch of dirt in the middle of the room and throw the earth over your shoulder. You feel fulfilled."
     }
 }
-
-# List of vowels
-vowels = ['a', 'e', 'i', 'o', 'u']
 
 # List to track inventory
 inventory = []
@@ -203,6 +201,10 @@ dialogue_index = {
 active_character = None
 
 last_valid_dialogue = ""
+
+alt_dialogue_triggered = {
+    'child': False
+}
 
 # Function to handle dialogue progression
 def handle_dialogue(character):
@@ -291,11 +293,24 @@ while True:
     elif action == "Talk" and len(next_move) > 2 and next_move[1].lower() == "to":
         try:
             if character == rooms[current_room]["Character"]:
-                if character == 'child' and current_room == 'First Room' and 'football' in inventory:
-                    active_character = character
-                    msg = rooms[current_room]['AltDialogue']
+                if character == 'child' and current_room == 'First Room':
+                    if 'football' in inventory or alt_dialogue_triggered[character]:
+                        active_character = character
+                        msg = rooms[current_room]['AltDialogue']
+                        last_valid_dialogue = msg
+                        alt_dialogue_triggered[character] = True
+                    else:
+                        active_character = character
+                        dialogue = handle_dialogue(character)
+                        if dialogue:
+                            msg = dialogue
+                            last_valid_dialogue = dialogue
+                            dialogue_index[character] += 1
+                        else:
+                            last_valid_dialogue = rooms[current_room]['Dialogue'][0]
+                            dialogue_index[character] = 1
+                            msg = last_valid_dialogue
                 else:
-                    msg = ""
                     active_character = character
                     dialogue = handle_dialogue(character)
                     if dialogue:
@@ -303,8 +318,9 @@ while True:
                         last_valid_dialogue = dialogue
                         dialogue_index[character] += 1
                     else:
-                        msg = f"No more dialogue available for {character}. Reply if you understand."
-                        last_valid_dialogue = msg
+                        last_valid_dialogue = rooms[current_room]['Dialogue'][0]
+                        dialogue_index[character] = 1
+                        msg = last_valid_dialogue
             else:
                 msg = f"Can't find {character}"
         except KeyError:
@@ -320,14 +336,15 @@ while True:
             msg = f"No more dialogue available for {active_character}."
             last_valid_dialogue = msg
             active_character = None
+
     elif action == "Rust" and active_character is None:
         print("Well, once there was only dark. If you ask me, the light's winning.")
         input("")
 
-    elif action == "Dig" and current_room == "Third Room":
+    elif action == "Dig":
         if "shovel" in inventory:
-            active_character = character
-            msg = rooms[current_room]["DigMessage"]
+            print(rooms[current_room]["DigMessage"])
+            input("")
         else:
             msg = "You need a shovel to dig."
 
