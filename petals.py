@@ -354,7 +354,7 @@ while True:
 
     elif action == "Kick" and len(next_move) > 1 and next_move[1].lower() == "football" and current_room == "Final Room" and "football" in inventory:
         clear()
-        msg = "You're a little rusty, but you manage to do a flick up and get some juggles going. You take a volley at the wall, but in an attempt to put some spin on it, it flies straight at the mirror. Unbelievably, the entire mirror shatters as if it were made of sugarglass, and you stare at the abyss ahead of you.\nThe football in your hands begins to glow, and the leather panels holding its shape collapse open, resembling a water lotus. You take a step forward into the dark, and you feel the ground transition into moist grass. The wind's sharp, and your dry face is copping the worst of it. \nIt smells like winter.\n"
+        msg = "You're a little rusty, but you manage to do a flick up and get some juggles going. You take a volley at the wall, but in an attempt to put some spin on it, it flies straight at the mirror. Unbelievably, the entire mirror shatters as if it were made of sugarglass, and you stare at the abyss ahead of you.\nThe football in your hands begins to glow, and the leather panels holding its shape collapse open, resembling a water lily. You take a step forward into the dark, and you feel the ground fade into moist grass. The wind's sharp, and your dry face is copping the worst of it. \nIt smells like winter.\n"
         print(msg)
         input("")
         break
