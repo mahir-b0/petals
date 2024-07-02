@@ -36,6 +36,13 @@ While years hurry on,
 \n- Amy Howell""")
     input("")
 
+def help():
+    print("to move through rooms:\t'move (forward/back)' (travel to the next or previous room)\n\
+to pick up items:\t'get (item name)' (add nearby item to inventory)\n\
+to talk to someone:\t'talk to (character)' (will start dialogue with character specified)\n\
+          \t\t'reply' (once dialogue has started, you can continue by replying)\n\
+to dig in specific rooms:\t'dig' (requires a shovel in inventory)\n")
+
 def prompt():
     print("hey, this is you.\n\n\
 this is your destiny, and this is everything you've been living for. you've made choices every single day to end up right here. i'll help you, if you let me. we're friends after all.\n\n\
@@ -77,8 +84,8 @@ rooms = {
             '“I don’t care. Maybe if you could put this flower back together, I’d consider it. But you can’t, so just stop.”',
             '"Just run away again, why don’t you? That’s all you’re ever good for, anyway. So go on, leave me alone."',
             '"..."',
-            '"Fine."'
-            '"..."'
+            '"Fine."',
+            '"..."',
             '"I’m sorry about what I said, I didn’t really mean it. I get it, you were scared. So you ran away. But you came back, I don’t think most people would do that. I guess that makes you special."',
             '"I wish you stayed then as well. All I ever wanted was to be happy with you. Can’t you see that? I’m alone now, whether you loved me or not."',
             '"So don’t run away again, please. Just stay with me for a bit."',
@@ -127,6 +134,8 @@ dialogue_index = {
 
 active_character = None
 
+last_valid_dialogue = ""
+
 # Function to handle dialogue progression
 def handle_dialogue(character):
     global dialogue_index
@@ -147,7 +156,10 @@ while True:
 
     print(f"Inventory : {inventory}\n{'-' * 27}")
 
-    print(msg)
+    if active_character is None:
+        print(msg)
+    else:
+        print(last_valid_dialogue)
     
     if active_character is None and 'Prompt' in rooms[current_room]:
         print(rooms[current_room]['Prompt'])
@@ -176,28 +188,30 @@ while True:
             item = next_move[1:]
             direction = next_move[1].title()
             item = " ".join(item).lower()
+    
+    if action == "Help":
+        clear()
+        help()
+        input("")
 
     # Moving between rooms
     if action == "Move" and active_character is None:
         try:
             current_room = rooms[current_room][direction]
             msg = f"You move {direction.lower()}"
-
+            last_valid_dialogue = ""
         except:
             msg = "You can't go that way."
     
     elif action == "Get" and active_character is None:
         try:
             if item == rooms[current_room]["Item"]:
-
                 if item not in inventory:
-
                     inventory.append(rooms[current_room]["Item"])
                     msg = f"You picked up the {item}"
-
+                    last_valid_dialogue = ""
                 else:
                     msg = f"You already have the {item}"
-            
             else:
                 msg = f"Can't find {item}"
         except:
@@ -215,9 +229,11 @@ while True:
                     dialogue = handle_dialogue(character)
                     if dialogue:
                         msg = dialogue
+                        last_valid_dialogue = dialogue
                         dialogue_index[character] += 1
                     else:
                         msg = f"No more dialogue available for {character}. Reply if you understand."
+                        last_valid_dialogue = msg
             else:
                 msg = f"Can't find {character}"
         except KeyError:
@@ -227,9 +243,11 @@ while True:
         dialogue = handle_dialogue(active_character)
         if dialogue:
             msg = dialogue
+            last_valid_dialogue = dialogue
             dialogue_index[active_character] += 1
         else:
             msg = f"No more dialogue available for {active_character}."
+            last_valid_dialogue = msg
             active_character = None
 
     elif action == "Dig" and current_room == "Third Room":
